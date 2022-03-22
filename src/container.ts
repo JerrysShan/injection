@@ -3,6 +3,8 @@ import {
     CLASS_PROPERTY,
     CLASS_CONSTRUCTOR_ARGS,
     CLASS_ASYNC_INIT_METHOD,
+    CLASS_CONFIG_ARGS,
+    CLASS_CONFIG_PROPERTY,
 } from './constant';
 import {
     Constructable,
@@ -27,9 +29,12 @@ export default class Container implements ContainerType {
     // @ts-ignore
     protected name: string;
 
-    constructor(name: string) {
+
+    private options: ContainerOptions;
+    constructor(name: string, options?: ContainerOptions) {
         this.name = name;
         this.registry = new Map();
+        this.options = { ...defaultOptions, ...options };
     }
 
     public get<T = unknown>(id: Identifier<T>): T {
@@ -79,8 +84,10 @@ export default class Container implements ContainerType {
         const id = targetMd.id ?? options.id ?? type;
         const scope = targetMd.scope ?? options.scope ?? ScopeEnum.SINGLETON;
         const args = getMetadata(CLASS_CONSTRUCTOR_ARGS, type) as ReflectMetadataType[];
+        const configArgs = getMetadata(CLASS_CONFIG_ARGS, type) as ReflectMetadataType[];
         const props = recursiveGetMetadata(CLASS_PROPERTY, type) as ReflectMetadataType[];
-        const md: InjectableMetadata = { ...options, id, type, scope, constructorArgs: args, properties: props };
+        const configProperties = recursiveGetMetadata(CLASS_CONFIG_PROPERTY, type) as ReflectMetadataType[];
+        const md: InjectableMetadata = { ...options, id, type, scope, constructorArgs: args, properties: props, configArgs, configProperties };
         this.registry.set(md.id, md);
         return this;
     }
@@ -95,8 +102,10 @@ export default class Container implements ContainerType {
         }
         const clazz = md.type!;
         const params = this.resolveParams(clazz, md.constructorArgs);
+        this.handleConfigValue(params, md.configArgs);
         const value = new clazz(...params);
         this.handleProps(value, md.properties ?? []);
+        this.handleConfigValue(value, md.configProperties);
         if (md.scope === ScopeEnum.SINGLETON) {
             md.value = value;
         }
@@ -118,6 +127,13 @@ export default class Container implements ContainerType {
     private handleProps(instance: any, props: ReflectMetadataType[]) {
         props.forEach(prop => {
             instance[prop.propertyName!] = this.get(prop.id);
+        });
+    }
+
+    private handleConfigValue(instance: any, configProperties: ReflectMetadataType[] = []) {
+        const config: Record<string, unknown> = this.get(this.options.configId!);
+        configProperties.forEach(prop => {
+            instance[(prop.propertyName ?? prop.index)!] = config[prop.id as string];
         });
     }
 }

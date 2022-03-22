@@ -15,12 +15,14 @@ export interface InjectableMetadata<T = any> {
     scope: ScopeEnum;
     properties?: any[];
     constructorArgs?: any[];
+    configProperties?: any[];
+    configArgs?: any[];
     type?: Constructable<T> | null;
     value?: unknown;
     path?: string;
 }
 
-export type InjectableOptions = Omit<InjectableMetadata, 'properties' | 'constructorArgs'>;
+export type InjectableOptions = Omit<InjectableMetadata, 'properties' | 'constructorArgs' | 'configProperties' | 'configArgs'>;
 
 export interface ReflectMetadataType {
     id: Identifier;
@@ -34,4 +36,8 @@ export interface ContainerType {
     getAsync<T>(id: Identifier<T>): Promise<T>;
     set(options: Partial<InjectableOptions>): this;
     getDefinition(id: Identifier): InjectableMetadata | undefined;
+}
+
+export interface ContainerOptions {
+    configId?: string;
 }

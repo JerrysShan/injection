@@ -20,7 +20,7 @@ export function Inject(id?: Identifier) {
         }
 
         if (!propertyType || isPrimitiveFunction(propertyType)) {
-            throw new CannotInjectValueError(target, propertyKey);
+            throw new CannotInjectValueError(target, propertyKey ?? index);
         }
 
         if (!isUndefined(index)) {

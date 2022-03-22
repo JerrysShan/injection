@@ -6,6 +6,7 @@ import { Foo } from './fixtures/constructor-args/foo';
 import { Bar } from './fixtures/async-init/bar';
 import { Animal } from './fixtures/class-extend/animal';
 import { Cat } from './fixtures/class-extend/cat';
+import { Dog } from './fixtures/config-inject/dog';
 
 const ctx = {};
 const container = new Container('default');
@@ -13,15 +14,17 @@ const execContainer = new ExecutionContainer(ctx, container);
 
 describe("container", () => {
     beforeAll(() => {
+        container.set({ id: 'config', value: { id: 12, name: 'Snoopy' } });
         container.set({ id: 'config.email', value: 'artus@artusjs.com' });
         container.set({ id: 'config.phone', value: '12345678901' });
-        container.set({ id: 'planet', value: 'earth' })
+        container.set({ id: 'planet', value: 'earth' });
         container.set({ id: Phone });
         container.set({ id: Person });
         container.set({ id: Foo, scope: ScopeEnum.EXECUTION });
         container.set({ id: Bar, scope: ScopeEnum.TRANSIENT });
         container.set({ id: Cat });
         container.set({ id: Animal });
+        container.set({ id: Dog });
     });
 
     it("should get instance from container", () => {
@@ -57,6 +60,15 @@ describe("container", () => {
             const bar = await execContainer.getAsync(Bar);
             expect(bar).toBeDefined();
             expect(bar.id).toBe(123);
+        });
+    });
+
+    describe('config value inject', () => {
+        it('should get instance ok by inject config value', () => {
+            const dog = container.get(Dog);
+            expect(dog).toBeDefined();
+            expect(dog.id).toBe(12);
+            expect(dog.name).toBe('Snoopy');
         });
     });
 });
