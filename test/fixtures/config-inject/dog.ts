@@ -1,7 +1,7 @@
 import { Config } from '../../../src'
 
 export class Dog {
-    @Config('name')
+    @Config('name.firstName')
     // @ts-ignore
     public name: string;
     constructor(

@@ -88,7 +88,21 @@ export function isObject(value) {
     return typeof value === 'object';
 }
 
-
 export function isPrimitiveFunction(value) {
     return ['String', 'Boolean', 'Number', 'Object'].includes(value.name);
+}
+
+export function deepGet(obj: Record<string, unknown>, path: string | string[]) {
+    if (typeof obj !== 'object' || !obj) {
+        return undefined;
+    }
+    const pathArr = typeof path === 'string' ? path.split('.') : path;
+    let result: any = obj;
+    for (const key of pathArr) {
+        if (typeof result !== 'object' || !result) {
+            return undefined;
+        }
+        result = result[key];
+    }
+    return result;
 }

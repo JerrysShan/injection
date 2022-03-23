@@ -5,9 +5,11 @@ import {
     CLASS_ASYNC_INIT_METHOD,
     CLASS_CONFIG_ARGS,
     CLASS_CONFIG_PROPERTY,
+    CONFIG_KEY,
 } from './constant';
 import {
     Constructable,
+    ContainerOptions,
     ContainerType,
     Identifier,
     InjectableMetadata,
@@ -16,6 +18,7 @@ import {
     ScopeEnum,
 } from "./types";
 import {
+    deepGet,
     getMetadata,
     getParamMetadata,
     isClass,
@@ -24,6 +27,9 @@ import {
 } from "./util";
 import { NotFoundError, NoTypeError } from "./errors";
 
+const defaultOptions = {
+    configId: CONFIG_KEY,
+};
 export default class Container implements ContainerType {
     protected registry: Map<Identifier, InjectableMetadata>;
     // @ts-ignore
@@ -65,7 +71,7 @@ export default class Container implements ContainerType {
         if (!type) {
             if (options.id && options.value) {
                 const md: InjectableMetadata = {
-                    id:options.id,
+                    id: options.id,
                     value: options.value,
                     scope: options.scope ?? ScopeEnum.SINGLETON,
                 };
@@ -133,7 +139,7 @@ export default class Container implements ContainerType {
     private handleConfigValue(instance: any, configProperties: ReflectMetadataType[] = []) {
         const config: Record<string, unknown> = this.get(this.options.configId!);
         configProperties.forEach(prop => {
-            instance[(prop.propertyName ?? prop.index)!] = config[prop.id as string];
+            instance[(prop.propertyName ?? prop.index)!] = deepGet(config, prop.id as string);
         });
     }
 }

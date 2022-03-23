@@ -14,7 +14,7 @@ const execContainer = new ExecutionContainer(ctx, container);
 
 describe("container", () => {
     beforeAll(() => {
-        container.set({ id: 'config', value: { id: 12, name: 'Snoopy' } });
+        container.set({ id: 'config', value: { id: 12, name: { firstName: 'Snoopy', } } });
         container.set({ id: 'config.email', value: 'artus@artusjs.com' });
         container.set({ id: 'config.phone', value: '12345678901' });
         container.set({ id: 'planet', value: 'earth' });

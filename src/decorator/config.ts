@@ -1,9 +1,9 @@
-import { Identifier, ReflectMetadataType } from "../types";
+import { ReflectMetadataType } from "../types";
 import { isObject, getMetadata, setMetadata } from "../util";
 import { CLASS_CONFIG_PROPERTY, CLASS_CONFIG_ARGS } from '../constant';
-import { CannotInjectValueError } from "../error/cannot_inject_value";
+import { CannotInjectValueError } from "../errors";
 
-export function Config(id?: Identifier) {
+export function Config(id?: string) {
     return (target: any, propertyKey: string | symbol, index?: number) => {
         if (isObject(target)) {
             target = target.constructor;
